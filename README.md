@@ -1,1 +1,1 @@
-# PowerMeterSensor
+# EnergyMeterSensor by PZM004T
