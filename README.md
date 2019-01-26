@@ -1,4 +1,3 @@
-# 
 # Energy Meter Sensor
 
 **Hardware**<br />
