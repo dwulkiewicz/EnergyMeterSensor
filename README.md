@@ -13,3 +13,4 @@ Energy measurement<br />
 
 ![Main page](https://github.com/dwulkiewicz/EnergyMeterSensor/blob/master/hardware/Hardware_01.png)
 ![Details of the circuit](https://github.com/dwulkiewicz/EnergyMeterSensor/blob/master/hardware/Hardware_02.png)
+![After instalation](https://github.com/dwulkiewicz/EnergyMeterSensor/blob/master/hardware/Hardware_03.png)
