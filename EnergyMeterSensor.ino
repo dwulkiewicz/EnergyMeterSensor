@@ -30,6 +30,12 @@ PubSubClient client(espClient);
 PZEM004T pzem(SOFT_UART1_RX,SOFT_UART1_TX);  // (RX,TX) connect to TX,RX of PZEM
 IPAddress ip(192,168,1,1);
 
+
+bool sensorEnergyRead = false;
+bool sensorVoltageRead = false;
+bool sensorCurrentRead = false;
+bool sensorPowerRead = false;
+
 char msg[50];
 
 // Set Hostname.
@@ -123,36 +129,16 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
   /*PZM004T*/
   if (mqttTopic.equals(sensorCommandTopic) && mqttMessage.equals(sensorCommandVoltage)) {    
-    float v = pzem.voltage(ip);
-    v = v >= 0.0 ? v : 0.0; 
-    Serial.printf("Voltage %.2fV\r\n",v);    
-    dtostrf(v, 2, 1, msg);
-    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorVoltageTopic, msg);
-    client.publish(sensorVoltageTopic, msg);
+    sensorVoltageRead = true;
   }
   else if (mqttTopic.equals(sensorCommandTopic) && mqttMessage.equals(sensorCommandCurrent)) {
-    float i = pzem.current(ip);
-    i = i >= 0.0 ? i : 0.0; 
-    Serial.printf("Current %.2fA\r\n",i);     
-    dtostrf(i, 2, 2, msg);
-    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorCurrentTopic, msg);
-    client.publish(sensorCurrentTopic, msg);
+    sensorCurrentRead = true;
   }
   else if (mqttTopic.equals(sensorCommandTopic) && mqttMessage.equals(sensorCommandPower)) {
-    float p = pzem.power(ip);
-    p = p >= 0.0 ? p : 0.0; 
-    Serial.printf("Power %.2fW\r\n",p);   
-    dtostrf(p, 1, 0, msg);
-    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorPowerTopic, msg);
-    client.publish(sensorPowerTopic, msg);
+    sensorPowerRead = true;
   }
   else if (mqttTopic.equals(sensorCommandTopic) && mqttMessage.equals(sensorCommandEnergy)) {
-    float e = pzem.energy(ip);
-    e = e >= 0.0 ? e : 0.0; 
-    Serial.printf("Energy %.2fWh\r\n",e);   
-    dtostrf(e, 1, 0, msg);
-    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorEnergyTopic, msg);
-    client.publish(sensorEnergyTopic, msg);
+    sensorEnergyRead = true;
   }  
 }
 //----------------------------------------------------------------------------------------
@@ -218,4 +204,41 @@ void loop() {
   ArduinoOTA.handle();
 
   client.loop();
+
+  if(sensorVoltageRead){
+    sensorVoltageRead = false;  
+    float v = pzem.voltage(ip);
+    v = v >= 0.0 ? v : 0.0; 
+    Serial.printf("Voltage %.2fV\r\n",v);    
+    dtostrf(v, 2, 1, msg);
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorVoltageTopic, msg);
+    client.publish(sensorVoltageTopic, msg);
+  }
+  if (sensorCurrentRead) {    
+    sensorCurrentRead = false;
+    float i = pzem.current(ip);
+    i = i >= 0.0 ? i : 0.0; 
+    Serial.printf("Current %.2fA\r\n",i);     
+    dtostrf(i, 2, 2, msg);
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorCurrentTopic, msg);
+    client.publish(sensorCurrentTopic, msg);
+  }
+  if (sensorPowerRead) {
+    sensorPowerRead = false;  
+    float p = pzem.power(ip);
+    p = p >= 0.0 ? p : 0.0; 
+    Serial.printf("Power %.2fW\r\n",p);   
+    dtostrf(p, 1, 0, msg);
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorPowerTopic, msg);
+    client.publish(sensorPowerTopic, msg);
+  }
+  if (sensorEnergyRead) {
+    sensorEnergyRead = false;   
+    float e = pzem.energy(ip);
+    e = e >= 0.0 ? e : 0.0; 
+    Serial.printf("Energy %.2fWh\r\n",e);   
+    dtostrf(e, 1, 0, msg);
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", sensorEnergyTopic, msg);
+    client.publish(sensorEnergyTopic, msg);
+  }  
 }
